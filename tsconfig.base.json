@@ -1,0 +1,1 @@
+{"compilerOptions":{"allowSyntheticDefaultImports":true,"declaration":true,"esModuleInterop":true,"forceConsistentCasingInFileNames":true,"isolatedModules":true,"lib":["ES2022","DOM","DOM.Iterable"],"noFallthroughCasesInSwitch":true,"noUnusedLocals":true,"noUnusedParameters":true,"resolveJsonModule":true,"skipLibCheck":true,"sourceMap":true,"strict":true,"target":"ES2022"}}
