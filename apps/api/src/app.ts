@@ -4,6 +4,7 @@ import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 import { config } from './config';
 import { requestId } from './middleware/requestId';
+import { lazyExpirationSweep } from './middleware/lazyExpirationSweep';
 import { errorHandler } from './middleware/errorHandler';
 import { AppError } from './utils/appError';
 import { apiRouter } from './routes';
@@ -15,6 +16,11 @@ export function createApp(): Express {
   app.use(cors({ origin: config.CORS_ORIGIN }));
   app.use(express.json({ limit: '1mb' }));
   app.use(requestId);
+
+  // On serverless (Vercel) there is no always-on process for node-cron, so
+  // API traffic drives the hourly expiration sweep. The middleware's atomic
+  // claim makes it safe on always-on deployments too.
+  app.use(lazyExpirationSweep);
 
   // Global rate limit: 600 requests per 15 minutes per IP.
   app.use(

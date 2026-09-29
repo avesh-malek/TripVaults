@@ -10,7 +10,11 @@ function main(): void {
     logger.info(`TripVault API listening on port ${config.PORT} (storage: ${config.STORAGE_PROVIDER})`);
   });
 
-  startExpirationJob();
+  // node-cron needs an always-on process. On Vercel (serverless) the lazy
+  // sweep middleware registered in createApp() runs the lifecycle instead.
+  if (process.env.VERCEL !== '1') {
+    startExpirationJob();
+  }
 
   const shutdown = (signal: string): void => {
     logger.info(`Received ${signal}, shutting down...`);

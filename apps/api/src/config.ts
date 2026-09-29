@@ -2,7 +2,7 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-export type StorageProviderName = 'local' | 'r2';
+export type StorageProviderName = 'local' | 'r2' | 'supabase';
 
 export interface ApiConfig {
   PORT: number;
@@ -15,7 +15,9 @@ export interface ApiConfig {
   R2_BUCKET?: string;
   R2_ACCESS_KEY_ID?: string;
   R2_SECRET_ACCESS_KEY?: string;
+  SUPABASE_STORAGE_BUCKET?: string;
   STORAGE_LOCAL_DIR: string;
+  /** Only required when STORAGE_PROVIDER=local (signs local file URLs). */
   FILE_SIGNING_SECRET: string;
   DOWNLOAD_URL_TTL_SECONDS: number;
   UPLOAD_URL_TTL_SECONDS: number;
@@ -47,8 +49,8 @@ function intOptional(name: string, fallback: number): number {
 function loadConfig(): ApiConfig {
   const port = intOptional('PORT', 4000);
   const storageProvider = optional('STORAGE_PROVIDER', 'local');
-  if (storageProvider !== 'local' && storageProvider !== 'r2') {
-    throw new Error(`Env var STORAGE_PROVIDER must be 'local' or 'r2', got: ${storageProvider}`);
+  if (storageProvider !== 'local' && storageProvider !== 'r2' && storageProvider !== 'supabase') {
+    throw new Error(`Env var STORAGE_PROVIDER must be 'local', 'r2' or 'supabase', got: ${storageProvider}`);
   }
 
   const cfg: ApiConfig = {
@@ -59,7 +61,10 @@ function loadConfig(): ApiConfig {
     SUPABASE_SERVICE_ROLE_KEY: required('SUPABASE_SERVICE_ROLE_KEY'),
     STORAGE_PROVIDER: storageProvider,
     STORAGE_LOCAL_DIR: optional('STORAGE_LOCAL_DIR', './storage'),
-    FILE_SIGNING_SECRET: required('FILE_SIGNING_SECRET'),
+    // Only the local provider signs file URLs itself; the other providers
+    // issue storage-native signed URLs and need no signing secret.
+    FILE_SIGNING_SECRET:
+      storageProvider === 'local' ? required('FILE_SIGNING_SECRET') : optional('FILE_SIGNING_SECRET', ''),
     DOWNLOAD_URL_TTL_SECONDS: intOptional('DOWNLOAD_URL_TTL_SECONDS', 900),
     UPLOAD_URL_TTL_SECONDS: intOptional('UPLOAD_URL_TTL_SECONDS', 3600),
   };
@@ -69,6 +74,10 @@ function loadConfig(): ApiConfig {
     cfg.R2_BUCKET = required('R2_BUCKET');
     cfg.R2_ACCESS_KEY_ID = required('R2_ACCESS_KEY_ID');
     cfg.R2_SECRET_ACCESS_KEY = required('R2_SECRET_ACCESS_KEY');
+  }
+
+  if (storageProvider === 'supabase') {
+    cfg.SUPABASE_STORAGE_BUCKET = optional('SUPABASE_STORAGE_BUCKET', 'tripvault-media');
   }
 
   return cfg;

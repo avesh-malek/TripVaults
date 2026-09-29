@@ -2,7 +2,10 @@ node_modules/
 dist/
 .env
 .env.local
-storage/
+# Local file-storage DATA dirs (STORAGE_LOCAL_DIR). Anchored so the
+# apps/api/src/storage/ provider *source* is never ignored.
+/storage/
+apps/api/storage/
 *.log
 .DS_Store
 coverage/
