@@ -2,12 +2,12 @@ import express, { type Express, type NextFunction, type Request, type Response }
 import helmet from 'helmet';
 import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
-import { config } from './config';
-import { requestId } from './middleware/requestId';
-import { lazyExpirationSweep } from './middleware/lazyExpirationSweep';
-import { errorHandler } from './middleware/errorHandler';
-import { AppError } from './utils/appError';
-import { apiRouter } from './routes';
+import { config } from './config.js';
+import { requestId } from './middleware/requestId.js';
+import { lazyExpirationSweep } from './middleware/lazyExpirationSweep.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { AppError } from './utils/appError.js';
+import { apiRouter } from './routes/index.js';
 
 export function createApp(): Express {
   const app = express();

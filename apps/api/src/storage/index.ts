@@ -1,14 +1,14 @@
-import { config } from '../config';
-import { LocalStorageProvider } from './local';
-import { R2StorageProvider } from './r2';
-import { SupabaseStorageProvider } from './supabase';
-import type { StorageProvider } from './types';
+import { config } from '../config.js';
+import { LocalStorageProvider } from './local.js';
+import { R2StorageProvider } from './r2.js';
+import { SupabaseStorageProvider } from './supabase.js';
+import type { StorageProvider } from './types.js';
 
-export type { StorageProvider } from './types';
-export { LocalStorageProvider, signFileUrl, verifyFileUrl } from './local';
-export type { FileUrlPurpose } from './local';
-export { R2StorageProvider } from './r2';
-export { SupabaseStorageProvider } from './supabase';
+export type { StorageProvider } from './types.js';
+export { LocalStorageProvider, signFileUrl, verifyFileUrl } from './local.js';
+export type { FileUrlPurpose } from './local.js';
+export { R2StorageProvider } from './r2.js';
+export { SupabaseStorageProvider } from './supabase.js';
 
 export function createStorageProvider(): StorageProvider {
   if (config.STORAGE_PROVIDER === 'r2') {

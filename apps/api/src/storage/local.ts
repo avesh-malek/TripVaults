@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { createReadStream, promises as fs } from 'node:fs';
 import * as path from 'node:path';
 import { UPLOAD_URL_TTL_SECONDS, DOWNLOAD_URL_TTL_SECONDS } from '@tripvault/shared';
-import type { StorageProvider } from './types';
+import type { StorageProvider } from './types.js';
 
 export type FileUrlPurpose = 'upload' | 'download';
 

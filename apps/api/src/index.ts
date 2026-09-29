@@ -1,7 +1,7 @@
-import { config } from './config';
-import { createApp } from './app';
-import { startExpirationJob } from './jobs/expirationJob';
-import { logger } from './utils/logger';
+import { config } from './config.js';
+import { createApp } from './app.js';
+import { startExpirationJob } from './jobs/expirationJob.js';
+import { logger } from './utils/logger.js';
 
 function main(): void {
   const app = createApp();

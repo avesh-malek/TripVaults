@@ -1,6 +1,6 @@
 import type { AccessType, Trip, TripStatus } from '@tripvault/shared';
-import { supabase } from '../supabase';
-import { unwrap } from './helpers';
+import { supabase } from '../supabase.js';
+import { unwrap } from './helpers.js';
 
 export interface TripRow {
   id: string;

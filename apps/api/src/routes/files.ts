@@ -1,10 +1,10 @@
 import { Router, type Request } from 'express';
 import express from 'express';
-import { config } from '../config';
-import { asyncHandler } from '../middleware/asyncHandler';
-import { AppError } from '../utils/appError';
-import { createLogger } from '../utils/logger';
-import { LocalStorageProvider, storage, verifyFileUrl } from '../storage';
+import { config } from '../config.js';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { AppError } from '../utils/appError.js';
+import { createLogger } from '../utils/logger.js';
+import { LocalStorageProvider, storage, verifyFileUrl } from '../storage/index.js';
 export const filesRouter = Router();
 
 function contentTypeFor(key: string): string {

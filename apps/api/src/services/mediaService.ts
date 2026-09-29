@@ -22,13 +22,13 @@ import {
   type TripMember,
   type UploadUrlSet,
 } from '@tripvault/shared';
-import { mediaRepository } from '../db/repositories/mediaRepository';
-import { memberRepository } from '../db/repositories/memberRepository';
-import { tripRepository } from '../db/repositories/tripRepository';
-import { config } from '../config';
-import { storage } from '../storage';
-import { DuplicateError, AppError } from '../utils/appError';
-import { logger } from '../utils/logger';
+import { mediaRepository } from '../db/repositories/mediaRepository.js';
+import { memberRepository } from '../db/repositories/memberRepository.js';
+import { tripRepository } from '../db/repositories/tripRepository.js';
+import { config } from '../config.js';
+import { storage } from '../storage/index.js';
+import { DuplicateError, AppError } from '../utils/appError.js';
+import { logger } from '../utils/logger.js';
 
 type InitiateUploadInput = z.infer<typeof initiateUploadSchema>;
 

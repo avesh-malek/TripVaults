@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 import { INVITE_CODE_ALPHABET, INVITE_CODE_LENGTH } from '@tripvault/shared';
-import { tripRepository } from '../db/repositories/tripRepository';
+import { tripRepository } from '../db/repositories/tripRepository.js';
 
 export function generateInviteCode(): string {
   let code = '';

@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import { expirationService, type LifecycleSummary } from '../services/expirationService';
-import { logger } from '../utils/logger';
+import { expirationService, type LifecycleSummary } from '../services/expirationService.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * The expiration sweep itself. Idempotent: every transition sets an explicit

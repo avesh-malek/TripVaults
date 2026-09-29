@@ -1,7 +1,7 @@
 import type { GalleryFilter, Media, MediaKind, ProcessingStatus, UploadMode } from '@tripvault/shared';
-import { supabase } from '../supabase';
-import { unwrap } from './helpers';
-import { AppError } from '../../utils/appError';
+import { supabase } from '../supabase.js';
+import { unwrap } from './helpers.js';
+import { AppError } from '../../utils/appError.js';
 
 export interface MediaRow {
   id: string;

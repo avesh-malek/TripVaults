@@ -11,14 +11,14 @@ import {
   type TripDetailResponse,
   type TripMember,
 } from '@tripvault/shared';
-import { tripRepository } from '../db/repositories/tripRepository';
-import { memberRepository, toPublic } from '../db/repositories/memberRepository';
-import { mediaRepository } from '../db/repositories/mediaRepository';
-import { joinRequestRepository } from '../db/repositories/joinRequestRepository';
-import { ensureUniqueInviteCode } from '../utils/inviteCode';
-import { addDays, daysUntil, MS_PER_DAY } from '../utils/time';
-import { AppError } from '../utils/appError';
-import { storage } from '../storage';
+import { tripRepository } from '../db/repositories/tripRepository.js';
+import { memberRepository, toPublic } from '../db/repositories/memberRepository.js';
+import { mediaRepository } from '../db/repositories/mediaRepository.js';
+import { joinRequestRepository } from '../db/repositories/joinRequestRepository.js';
+import { ensureUniqueInviteCode } from '../utils/inviteCode.js';
+import { addDays, daysUntil, MS_PER_DAY } from '../utils/time.js';
+import { AppError } from '../utils/appError.js';
+import { storage } from '../storage/index.js';
 
 type CreateTripInput = z.infer<typeof createTripSchema>;
 type UpdateTripInput = z.infer<typeof updateTripSchema>;

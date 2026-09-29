@@ -1,9 +1,9 @@
 import type { NextFunction, Request, Response } from 'express';
 import { SESSION_HEADER, type Trip } from '@tripvault/shared';
-import { tripRepository } from '../db/repositories/tripRepository';
-import { memberRepository } from '../db/repositories/memberRepository';
-import { mediaRepository } from '../db/repositories/mediaRepository';
-import { AppError } from '../utils/appError';
+import { tripRepository } from '../db/repositories/tripRepository.js';
+import { memberRepository } from '../db/repositories/memberRepository.js';
+import { mediaRepository } from '../db/repositories/mediaRepository.js';
+import { AppError } from '../utils/appError.js';
 
 /**
  * A trip accepts writes while it is 'active' or 'expiring_soon' and its

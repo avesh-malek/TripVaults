@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { AppError } from '../utils/appError';
+import { AppError } from '../utils/appError.js';
 
 /** Requires req.member (set by requireTripMember) to have the owner role. */
 export function requireOwner(req: Request, _res: Response, next: NextFunction): void {

@@ -1,6 +1,6 @@
 import type { JoinRequest, JoinRequestStatus } from '@tripvault/shared';
-import { supabase } from '../supabase';
-import { unwrap } from './helpers';
+import { supabase } from '../supabase.js';
+import { unwrap } from './helpers.js';
 
 export interface JoinRequestRow {
   id: string;

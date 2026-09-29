@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { config } from '../config';
+import { config } from '../config.js';
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { asyncHandler } from '../middleware/asyncHandler';
+import { asyncHandler } from '../middleware/asyncHandler.js';
 
 function readVersion(): string {
   // dist/../package.json in prod, src/../../package.json under tsx.
-  const candidates = [join(__dirname, '..', 'package.json'), join(__dirname, '..', '..', 'package.json')];
+  const candidates = [join(import.meta.dirname, '..', 'package.json'), join(import.meta.dirname, '..', '..', 'package.json')];
   for (const candidate of candidates) {
     try {
       if (existsSync(candidate)) {

@@ -1,8 +1,8 @@
 import { Readable } from 'node:stream';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { UPLOAD_URL_TTL_SECONDS, DOWNLOAD_URL_TTL_SECONDS } from '@tripvault/shared';
-import type { StorageProvider } from './types';
-import { logger } from '../utils/logger';
+import type { StorageProvider } from './types.js';
+import { logger } from '../utils/logger.js';
 
 /**
  * Supabase Storage backend.

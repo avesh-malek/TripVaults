@@ -11,15 +11,15 @@ import {
   updateTripSchema,
   type MediaQueryInput,
 } from '@tripvault/shared';
-import { asyncHandler } from '../middleware/asyncHandler';
-import { validate } from '../middleware/validate';
-import { requireTripMember } from '../middleware/requireTripMember';
-import { requireOwner } from '../middleware/requireOwner';
-import { AppError } from '../utils/appError';
-import { createLogger } from '../utils/logger';
-import { tripService } from '../services/tripService';
-import { memberService } from '../services/memberService';
-import { mediaService } from '../services/mediaService';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { validate } from '../middleware/validate.js';
+import { requireTripMember } from '../middleware/requireTripMember.js';
+import { requireOwner } from '../middleware/requireOwner.js';
+import { AppError } from '../utils/appError.js';
+import { createLogger } from '../utils/logger.js';
+import { tripService } from '../services/tripService.js';
+import { memberService } from '../services/memberService.js';
+import { mediaService } from '../services/mediaService.js';
 
 export const tripsRouter = Router();
 

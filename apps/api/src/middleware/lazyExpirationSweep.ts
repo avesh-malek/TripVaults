@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
-import { supabase } from '../db/supabase';
-import { runExpirationCycle } from '../jobs/expirationJob';
-import { logger } from '../utils/logger';
+import { supabase } from '../db/supabase.js';
+import { runExpirationCycle } from '../jobs/expirationJob.js';
+import { logger } from '../utils/logger.js';
 
 /** Minimum gap between lazy sweeps. */
 const SWEEP_INTERVAL_MS = 60 * 60 * 1000;

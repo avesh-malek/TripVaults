@@ -1,7 +1,7 @@
 import type { MemberPublic, MemberRole, MemberStatus, TripMember } from '@tripvault/shared';
-import { supabase } from '../supabase';
-import { unwrap } from './helpers';
-import { logger } from '../../utils/logger';
+import { supabase } from '../supabase.js';
+import { unwrap } from './helpers.js';
+import { logger } from '../../utils/logger.js';
 
 export interface MemberRow {
   id: string;

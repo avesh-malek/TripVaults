@@ -4,11 +4,11 @@ import {
   GRACE_WARNING_DAYS,
   VIDEO_PROCESSING_READY_AFTER_MINUTES,
 } from '@tripvault/shared';
-import { tripRepository } from '../db/repositories/tripRepository';
-import { mediaRepository } from '../db/repositories/mediaRepository';
-import { tripService } from './tripService';
-import { addDays, addHours, addMinutes } from '../utils/time';
-import { logger } from '../utils/logger';
+import { tripRepository } from '../db/repositories/tripRepository.js';
+import { mediaRepository } from '../db/repositories/mediaRepository.js';
+import { tripService } from './tripService.js';
+import { addDays, addHours, addMinutes } from '../utils/time.js';
+import { logger } from '../utils/logger.js';
 
 export interface LifecycleSummary {
   expiringSoon: number;

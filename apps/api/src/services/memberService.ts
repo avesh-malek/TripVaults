@@ -11,10 +11,10 @@ import {
   type Trip,
   type TripMember,
 } from '@tripvault/shared';
-import { tripRepository } from '../db/repositories/tripRepository';
-import { memberRepository, toPublic } from '../db/repositories/memberRepository';
-import { joinRequestRepository } from '../db/repositories/joinRequestRepository';
-import { AppError } from '../utils/appError';
+import { tripRepository } from '../db/repositories/tripRepository.js';
+import { memberRepository, toPublic } from '../db/repositories/memberRepository.js';
+import { joinRequestRepository } from '../db/repositories/joinRequestRepository.js';
+import { AppError } from '../utils/appError.js';
 
 type JoinTripInput = z.infer<typeof joinTripSchema>;
 

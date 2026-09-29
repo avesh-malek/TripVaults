@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { healthRouter } from './health';
-import { tripsRouter } from './trips';
-import { mediaRouter } from './media';
-import { filesRouter } from './files';
+import { healthRouter } from './health.js';
+import { tripsRouter } from './trips.js';
+import { mediaRouter } from './media.js';
+import { filesRouter } from './files.js';
 
 export const apiRouter = Router();
 

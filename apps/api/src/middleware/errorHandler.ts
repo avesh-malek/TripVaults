@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ZodError } from 'zod';
 import type { ApiErrorBody } from '@tripvault/shared';
-import { AppError, DuplicateError } from '../utils/appError';
-import { createLogger } from '../utils/logger';
+import { AppError, DuplicateError } from '../utils/appError.js';
+import { createLogger } from '../utils/logger.js';
 
 function body(code: string, message: string, details?: unknown): ApiErrorBody {
   return { error: { code, message, ...(details !== undefined ? { details } : {}) } } as ApiErrorBody;

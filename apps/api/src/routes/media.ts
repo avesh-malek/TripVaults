@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import type { MediaVariant } from '@tripvault/shared';
-import { asyncHandler } from '../middleware/asyncHandler';
-import { requireMediaMember } from '../middleware/requireTripMember';
-import { AppError } from '../utils/appError';
-import { mediaService } from '../services/mediaService';
+import { asyncHandler } from '../middleware/asyncHandler.js';
+import { requireMediaMember } from '../middleware/requireTripMember.js';
+import { AppError } from '../utils/appError.js';
+import { mediaService } from '../services/mediaService.js';
 
 export const mediaRouter = Router();
 
