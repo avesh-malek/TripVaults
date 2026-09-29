@@ -2,6 +2,7 @@ import { Router, type Request } from 'express';
 import { rateLimit } from 'express-rate-limit';
 import {
   SESSION_HEADER,
+  bulkDeleteSchema,
   bulkDownloadSchema,
   createTripSchema,
   extendTripSchema,
@@ -201,6 +202,16 @@ tripsRouter.post(
   asyncHandler(async (req, res) => {
     const result = await mediaService.initiateUpload(req.trip.id, req.member, req.body);
     res.status(201).json(result);
+  }),
+);
+
+tripsRouter.post(
+  '/:tripId/media/bulk-delete',
+  requireTripMember,
+  validate(bulkDeleteSchema),
+  asyncHandler(async (req, res) => {
+    const { mediaIds } = req.body as { mediaIds: string[] };
+    res.json(await mediaService.bulkDelete(req.trip.id, req.member, mediaIds));
   }),
 );
 

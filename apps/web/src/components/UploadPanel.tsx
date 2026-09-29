@@ -124,13 +124,26 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
         patchItem(item.id, { status: 'working', progress: 0, error: null });
 
         const fileHash = await sha256Hex(file);
+
+        // Decide the exact bytes we'll upload BEFORE initiating, so the
+        // reservation metadata (mime/size/dimensions) always matches reality.
+        let uploadBlob: Blob = file;
+        let uploadMime = file.type || 'application/octet-stream';
         let width: number | undefined;
         let height: number | undefined;
         let duration: number | undefined;
         if (kind === 'image') {
-          const dims = await getImageDimensions(file);
-          width = dims.width;
-          height = dims.height;
+          if (mode === 'compressed') {
+            const compressed = await compressImage(file, file.type);
+            uploadBlob = compressed.blob;
+            uploadMime = compressed.mimeType;
+            width = compressed.width;
+            height = compressed.height;
+          } else {
+            const dims = await getImageDimensions(file);
+            width = dims.width;
+            height = dims.height;
+          }
         } else {
           const meta = await getVideoMetadata(file);
           width = meta.width || undefined;
@@ -140,8 +153,8 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
 
         const payload: InitiateUploadInput = {
           originalName: file.name,
-          mimeType: file.type,
-          fileSize: file.size,
+          mimeType: uploadMime,
+          fileSize: uploadBlob.size,
           fileHash,
           uploadMode: mode,
           ...(width ? { width } : {}),
@@ -182,16 +195,15 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
           /* thumbnails are optional — continue with the main upload */
         }
 
-        // 2) Main payload.
+        // 2) Main payload — the bytes we decided on above.
         if (mode === 'compressed' && kind === 'image') {
-          const compressed = await compressImage(file);
           const url = uploadUrls.compressed ?? uploadUrls.original;
           if (!url) throw new Error('No upload URL returned by the server');
-          await putWithProgress(url, compressed.blob, 'image/jpeg', setMainProgress);
+          await putWithProgress(url, uploadBlob, uploadMime, setMainProgress);
         } else {
           const url = uploadUrls.original ?? uploadUrls.compressed;
           if (!url) throw new Error('No upload URL returned by the server');
-          await putWithProgress(url, file, file.type || 'application/octet-stream', setMainProgress);
+          await putWithProgress(url, uploadBlob, uploadMime, setMainProgress);
         }
 
         // 3) Mark complete.
@@ -284,15 +296,15 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
           if (e.dataTransfer.files.length > 0) addFiles(e.dataTransfer.files);
         }}
         className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-6 py-10 text-center transition-colors ${
-          dragging ? 'border-indigo-500 bg-indigo-50' : 'border-gray-300 bg-white hover:border-indigo-400'
+          dragging ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/60' : 'border-gray-300 dark:border-stone-700 bg-white dark:bg-stone-900 hover:border-teal-400'
         }`}
       >
         <div className="text-4xl">📤</div>
-        <p className="mt-3 font-medium text-gray-900">Drag & drop photos and videos here</p>
-        <p className="mt-1 text-sm text-gray-500">
-          or <span className="font-medium text-indigo-600">browse your files</span>
+        <p className="mt-3 font-medium text-gray-900 dark:text-stone-100">Drag & drop photos and videos here</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-stone-400">
+          or <span className="font-medium text-teal-600 dark:text-teal-400">browse your files</span>
         </p>
-        <p className="mt-2 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-gray-400 dark:text-stone-500">
           JPG, PNG, WebP, HEIC · MP4, MOV, WebM — photos up to {formatBytes(MAX_IMAGE_BYTES)},
           videos up to {formatBytes(MAX_VIDEO_BYTES)}
         </p>
@@ -310,12 +322,12 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
       </div>
 
       {/* Quality choice */}
-      <div className="rounded-2xl border border-gray-200 bg-white p-4">
-        <p className="text-sm font-medium text-gray-900">Upload quality</p>
+      <div className="rounded-2xl border border-gray-200 dark:border-stone-800 bg-white dark:bg-stone-900 p-4">
+        <p className="text-sm font-medium text-gray-900 dark:text-stone-100">Upload quality</p>
         <div className="mt-2 grid gap-2 sm:grid-cols-2">
           <label
             className={`cursor-pointer rounded-xl border p-3 transition-colors ${
-              quality === 'original' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-gray-300'
+              quality === 'original' ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/60' : 'border-gray-200 dark:border-stone-800 hover:border-gray-300 dark:border-stone-700'
             }`}
           >
             <div className="flex items-center gap-2">
@@ -324,15 +336,15 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
                 name="quality"
                 checked={quality === 'original'}
                 onChange={() => setQuality('original')}
-                className="h-4 w-4 accent-indigo-600"
+                className="h-4 w-4 accent-teal-600"
               />
-              <span className="text-sm font-medium text-gray-900">Original</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-stone-100">Original</span>
             </div>
-            <p className="mt-1 pl-6 text-xs text-gray-500">Full quality, exactly as captured. Larger files.</p>
+            <p className="mt-1 pl-6 text-xs text-gray-500 dark:text-stone-400">Full quality, exactly as captured. Larger files.</p>
           </label>
           <label
             className={`cursor-pointer rounded-xl border p-3 transition-colors ${
-              quality === 'compressed' ? 'border-indigo-500 bg-indigo-50' : 'border-gray-200 hover:border-gray-300'
+              quality === 'compressed' ? 'border-teal-500 bg-teal-50 dark:bg-teal-950/60' : 'border-gray-200 dark:border-stone-800 hover:border-gray-300 dark:border-stone-700'
             }`}
           >
             <div className="flex items-center gap-2">
@@ -341,15 +353,15 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
                 name="quality"
                 checked={quality === 'compressed'}
                 onChange={() => setQuality('compressed')}
-                className="h-4 w-4 accent-indigo-600"
+                className="h-4 w-4 accent-teal-600"
               />
-              <span className="text-sm font-medium text-gray-900">Compressed</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-stone-100">Compressed</span>
             </div>
-            <p className="mt-1 pl-6 text-xs text-gray-500">Smaller, faster uploads.</p>
+            <p className="mt-1 pl-6 text-xs text-gray-500 dark:text-stone-400">Smaller, faster uploads. Large photos are resized to fit 2048px and optimized — small images are left untouched.</p>
           </label>
         </div>
         {quality === 'compressed' && (
-          <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
+          <p className="mt-2 rounded-lg bg-amber-50 dark:bg-amber-950/60 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
             ⚠️ Compressed uploads can't be restored to original quality later.
           </p>
         )}
@@ -363,11 +375,11 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
           description="Add photos or videos above and they'll appear here ready to upload."
         />
       ) : (
-        <div className="rounded-2xl border border-gray-200 bg-white">
-          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
-            <p className="text-sm font-medium text-gray-900">
+        <div className="rounded-2xl border border-gray-200 dark:border-stone-800 bg-white dark:bg-stone-900">
+          <div className="flex items-center justify-between border-b border-gray-100 dark:border-stone-800 px-4 py-3">
+            <p className="text-sm font-medium text-gray-900 dark:text-stone-100">
               {queue.length} file{queue.length === 1 ? '' : 's'}
-              {doneCount > 0 && <span className="ml-2 text-gray-500">· {doneCount} uploaded</span>}
+              {doneCount > 0 && <span className="ml-2 text-gray-500 dark:text-stone-400">· {doneCount} uploaded</span>}
             </p>
             <div className="flex gap-2">
               {errorCount > 0 && !isUploading && (
@@ -387,24 +399,24 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
           </div>
 
           {(isUploading || activeCount > 0) && (
-            <div className="border-b border-gray-100 px-4 py-3">
-              <div className="h-2 overflow-hidden rounded-full bg-gray-100">
+            <div className="border-b border-gray-100 dark:border-stone-800 px-4 py-3">
+              <div className="h-2 overflow-hidden rounded-full bg-gray-100 dark:bg-stone-800">
                 <div
-                  className="h-full rounded-full bg-indigo-600 transition-all"
+                  className="h-full rounded-full bg-teal-600 dark:bg-teal-500 transition-all"
                   style={{ width: `${Math.round(overallProgress * 100)}%` }}
                 />
               </div>
-              <p className="mt-1 text-xs text-gray-500">{Math.round(overallProgress * 100)}% overall</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-stone-400">{Math.round(overallProgress * 100)}% overall</p>
             </div>
           )}
 
-          <ul className="divide-y divide-gray-100">
+          <ul className="divide-y divide-gray-100 dark:divide-stone-800">
             {queue.map((item) => (
               <li key={item.id} className="px-4 py-3">
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900">{item.file.name}</p>
-                    <p className="text-xs text-gray-500">{formatBytes(item.file.size)}</p>
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-stone-100">{item.file.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-stone-400">{formatBytes(item.file.size)}</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {statusBadge(item)}
@@ -417,7 +429,7 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
                       <button
                         onClick={() => setQueue((prev) => prev.filter((q) => q.id !== item.id))}
                         aria-label={`Remove ${item.file.name}`}
-                        className="rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                        className="rounded-full p-1 text-gray-400 dark:text-stone-500 hover:bg-gray-100 dark:bg-stone-800 hover:text-gray-600 dark:text-stone-400"
                       >
                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -427,31 +439,31 @@ export function UploadPanel({ tripId, sessionId, onUploaded }: UploadPanelProps)
                   </div>
                 </div>
                 {item.status === 'working' && (
-                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100">
+                  <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-gray-100 dark:bg-stone-800">
                     <div
-                      className="h-full rounded-full bg-indigo-600 transition-all"
+                      className="h-full rounded-full bg-teal-600 dark:bg-teal-500 transition-all"
                       style={{ width: `${Math.round(item.progress * 100)}%` }}
                     />
                   </div>
                 )}
                 {item.status === 'error' && item.error && (
-                  <p className="mt-1 text-xs text-red-600">{item.error}</p>
+                  <p className="mt-1 text-xs text-red-600 dark:text-red-400">{item.error}</p>
                 )}
                 {item.status === 'duplicate' && (
-                  <p className="mt-1 text-xs text-amber-700">This exact file is already in the gallery.</p>
+                  <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">This exact file is already in the gallery.</p>
                 )}
               </li>
             ))}
           </ul>
 
           {queue.length > 0 && !isUploading && (
-            <div className="border-t border-gray-100 px-4 py-3">
+            <div className="border-t border-gray-100 dark:border-stone-800 px-4 py-3">
               <button
                 onClick={() => {
                   setQueue([]);
                   toast.info('Upload queue cleared');
                 }}
-                className="text-xs font-medium text-gray-500 hover:text-gray-700"
+                className="text-xs font-medium text-gray-500 dark:text-stone-400 hover:text-gray-700 dark:hover:text-stone-200"
               >
                 Clear finished queue
               </button>

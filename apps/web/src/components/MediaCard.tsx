@@ -9,11 +9,22 @@ export interface MediaCardProps {
   onToggleSelect: (id: string) => void;
 }
 
-const PLACEHOLDER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Crect width='400' height='400' fill='%23e5e7eb'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-size='48' fill='%239ca3af'%3E%F0%9F%96%BC%EF%B8%8F%3C/text%3E%3C/svg%3E";
+function ImageIcon({ className = '' }: { className?: string }) {
+  return (
+    <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25z"
+      />
+    </svg>
+  );
+}
 
 export function MediaCard({ item, selected, selectionMode, onPreview, onToggleSelect }: MediaCardProps) {
   const isVideo = item.media_kind === 'video';
+  const processing = item.processing_status === 'processing';
+  const failed = item.processing_status === 'failed';
 
   const handleClick = () => {
     if (selectionMode) onToggleSelect(item.id);
@@ -24,30 +35,46 @@ export function MediaCard({ item, selected, selectionMode, onPreview, onToggleSe
     <button
       onClick={handleClick}
       aria-pressed={selectionMode ? selected : undefined}
-      className={`group relative aspect-square w-full overflow-hidden rounded-xl bg-gray-100 text-left transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 ${
-        selected ? 'ring-4 ring-indigo-500' : 'hover:shadow-md'
+      className={`group relative aspect-square w-full overflow-hidden rounded-xl bg-gray-100 text-left transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-500 dark:bg-stone-800 ${
+        selected ? 'ring-4 ring-teal-500' : 'hover:shadow-md'
       }`}
     >
-      <img
-        src={item.thumbnailUrl ?? PLACEHOLDER}
-        alt={item.original_name}
-        loading="lazy"
-        className="h-full w-full object-cover"
-      />
-
-      {selectionMode && (
-        <span
-          className={`absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
-            selected ? 'border-indigo-600 bg-indigo-600 text-white' : 'border-white bg-black/40 text-transparent'
-          }`}
-        >
-          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
+      {item.thumbnailUrl ? (
+        <img
+          src={item.thumbnailUrl}
+          alt={item.original_name}
+          loading="lazy"
+          className="h-full w-full object-cover"
+        />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center text-gray-400 dark:text-stone-600">
+          <ImageIcon className="h-10 w-10" />
         </span>
       )}
 
-      {isVideo && (
+      {processing && (
+        <span className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/45">
+          <svg className="h-6 w-6 animate-spin text-white" viewBox="0 0 24 24" fill="none" aria-hidden>
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <path
+              className="opacity-90"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+            />
+          </svg>
+          <span className="rounded-full bg-black/60 px-2.5 py-0.5 text-xs font-medium text-white">
+            Processing
+          </span>
+        </span>
+      )}
+
+      {failed && (
+        <span className="absolute right-1.5 top-1.5 rounded-full bg-red-600/90 px-2 py-0.5 text-[11px] font-medium text-white">
+          Couldn&apos;t process
+        </span>
+      )}
+
+      {isVideo && !processing && (
         <>
           <span className="absolute inset-0 flex items-center justify-center">
             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-black/55 text-white">
@@ -60,6 +87,18 @@ export function MediaCard({ item, selected, selectionMode, onPreview, onToggleSe
             {formatDuration(item.duration)}
           </span>
         </>
+      )}
+
+      {selectionMode && (
+        <span
+          className={`absolute left-2 top-2 flex h-6 w-6 items-center justify-center rounded-full border-2 ${
+            selected ? 'border-teal-600 bg-teal-600 text-white' : 'border-white bg-black/40 text-transparent'
+          }`}
+        >
+          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </span>
       )}
 
       <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-2 pb-1.5 pt-6 text-left">

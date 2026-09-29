@@ -28,10 +28,15 @@ export function formatDate(iso: string): string {
   });
 }
 
-/** "Expires in 5 days" / "Expires tomorrow" / "Expires today" / "Expired". */
-export function expiresLabel(days: number): string {
-  if (days < 0) return 'Expired';
-  if (days === 0) return 'Expires today';
+/** "Expires in 6 hours" / "Expires tomorrow" / "Expires in 5 days" / "Expired". */
+export function expiresLabel(hours: number): string {
+  if (hours <= 0) return 'Expired';
+  if (hours < 1) return 'Expires within the hour';
+  if (hours < 24) {
+    const h = Math.ceil(hours);
+    return `Expires in ${h} hour${h === 1 ? '' : 's'}`;
+  }
+  const days = Math.ceil(hours / 24);
   if (days === 1) return 'Expires tomorrow';
   return `Expires in ${days} days`;
 }

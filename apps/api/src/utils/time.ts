@@ -16,3 +16,8 @@ export function addMinutes(date: Date, minutes: number): Date {
 export function daysUntil(iso: string, now: Date = new Date()): number {
   return Math.ceil((new Date(iso).getTime() - now.getTime()) / MS_PER_DAY);
 }
+
+/** Whole hours (rounded up) from now until the given ISO timestamp; may be negative. */
+export function hoursUntil(iso: string, now: Date = new Date()): number {
+  return Math.ceil((new Date(iso).getTime() - now.getTime()) / 3_600_000);
+}

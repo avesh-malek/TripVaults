@@ -3,20 +3,28 @@ import { Link, useNavigate } from 'react-router-dom';
 import { PageContainer } from '../components/ui/PageContainer';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { Badge } from '../components/ui/Badge';
 
 const STEPS = [
-  { icon: '🧳', title: 'Create a trip', text: 'Name your trip and pick how long the gallery stays available — up to 14 days free.' },
-  { icon: '🔗', title: 'Share the link', text: 'Send one invite link to your travel buddies. No accounts, no app to install.' },
-  { icon: '📸', title: 'Everyone uploads', text: 'Friends add their photos and videos straight from their phones, in original quality.' },
-  { icon: '💾', title: 'Keep the memories', text: 'Download everything as a ZIP before the gallery expires. Simple as that.' },
+  {
+    title: 'Create a trip',
+    text: 'Name your trip and choose how long the gallery stays open — from a few hours to 14 days. You get one invite link.',
+  },
+  {
+    title: 'Friends join with the link',
+    text: 'No accounts, no app to install. Anyone with the link joins in seconds, straight from their phone.',
+  },
+  {
+    title: 'Everyone uploads, on schedule',
+    text: 'Photos and videos land in one shared gallery in original quality. When time runs out, the gallery expires — download everything as a ZIP before it does.',
+  },
 ];
 
 const FEATURES = [
-  'No sign-ups — join with a link and a name',
-  'Original-quality uploads, plus a compressed option',
-  'Shared gallery with photos, videos & thumbnails',
-  'Bulk download everything as one ZIP',
-  'Galleries auto-expire — no digital clutter left behind',
+  { title: 'Temporary by design', text: 'Galleries live for hours or days, then expire. No feeds, no clutter left behind.' },
+  { title: 'No accounts or logins', text: 'An invite link and a name is all anyone needs to join and contribute.' },
+  { title: 'Original quality', text: 'Uploads stay full-resolution, with a compressed option for slower connections.' },
+  { title: 'One ZIP for everything', text: 'Select photos, filter by person, and download the whole gallery in one go.' },
 ];
 
 export function Landing() {
@@ -31,80 +39,123 @@ export function Landing() {
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-indigo-50 to-white">
-        <PageContainer className="pb-12 pt-14 text-center sm:pt-20">
-          <h1 className="mx-auto max-w-3xl text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl">
+      <section>
+        <PageContainer className="pb-14 pt-14 text-center sm:pb-20 sm:pt-20">
+          <div className="flex justify-center">
+            <Badge color="teal">Temporary shared galleries</Badge>
+          </div>
+          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold tracking-tight text-gray-900 sm:text-5xl dark:text-stone-100">
             All your trip memories. In one place.
           </h1>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-gray-600">
-            TripVault gives every trip a temporary shared gallery. Everyone uploads their photos
-            and videos — no accounts, no group-chat chaos, no lost memories.
+          <p className="mx-auto mt-4 max-w-xl text-lg text-gray-600 dark:text-stone-400">
+            TripVault gives every trip a shared gallery with an expiry date. Everyone uploads
+            their photos and videos — no accounts, no group-chat chaos, no lost memories.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link to="/trips/create">
-              <Button size="lg">Create a Trip</Button>
-            </Link>
-            <div className="flex w-full max-w-xs gap-2 sm:w-auto">
-              <Input
-                placeholder="Invite code"
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') joinWithCode();
-                }}
-                aria-label="Invite code"
-                className="flex-1"
-              />
-              <Button variant="secondary" size="lg" onClick={joinWithCode} disabled={!code.trim()}>
-                Join a Trip
+            <Link to="/trips/create" className="w-full sm:w-auto">
+              <Button size="lg" className="w-full sm:w-auto">
+                Create a trip
               </Button>
-            </div>
+            </Link>
+            <Link to="/dashboard" className="w-full sm:w-auto">
+              <Button size="lg" variant="secondary" className="w-full sm:w-auto">
+                My trips
+              </Button>
+            </Link>
           </div>
-          <p className="mt-4 text-xs text-gray-400">Free for galleries up to 14 days · No account needed</p>
+          <p className="mt-4 text-xs text-gray-400 dark:text-stone-500">
+            Free for galleries up to 14 days · No account needed
+          </p>
+
+          {/* Invite code — quiet tertiary action */}
+          <div className="mx-auto mt-8 flex w-full max-w-xs items-center gap-2">
+            <Input
+              placeholder="Have an invite code?"
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') joinWithCode();
+              }}
+              aria-label="Invite code"
+              className="flex-1"
+            />
+            <Button variant="ghost" onClick={joinWithCode} disabled={!code.trim()}>
+              Join
+            </Button>
+          </div>
         </PageContainer>
       </section>
 
       {/* How it works */}
-      <section className="bg-white">
+      <section className="border-t border-gray-200 dark:border-stone-800">
         <PageContainer>
-          <h2 className="text-center text-2xl font-bold text-gray-900">How it works</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-stone-100">
+            How it works
+          </h2>
+          <p className="mx-auto mt-2 max-w-md text-center text-sm text-gray-500 dark:text-stone-500">
+            From idea to shared gallery in under a minute.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
             {STEPS.map((step, i) => (
-              <div key={step.title} className="rounded-2xl border border-gray-200 bg-gray-50/50 p-5">
-                <div className="text-3xl">{step.icon}</div>
-                <p className="mt-3 text-sm font-semibold text-indigo-600">Step {i + 1}</p>
-                <h3 className="mt-1 font-semibold text-gray-900">{step.title}</h3>
-                <p className="mt-1 text-sm text-gray-600">{step.text}</p>
+              <div
+                key={step.title}
+                className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-stone-800 dark:bg-stone-900"
+              >
+                <p className="text-sm font-bold tabular-nums text-teal-600 dark:text-teal-400">
+                  {String(i + 1).padStart(2, '0')}
+                </p>
+                <h3 className="mt-2 font-semibold text-gray-900 dark:text-stone-100">{step.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-stone-400">
+                  {step.text}
+                </p>
               </div>
             ))}
           </div>
         </PageContainer>
       </section>
 
-      {/* Features */}
-      <section>
+      {/* What makes it different */}
+      <section className="border-t border-gray-200 dark:border-stone-800">
         <PageContainer>
-          <div className="mx-auto max-w-2xl rounded-2xl bg-gray-900 p-6 text-white sm:p-8">
-            <h2 className="text-xl font-bold">Made for trips, not feeds</h2>
-            <ul className="mt-4 space-y-2.5">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="text-center text-2xl font-bold tracking-tight text-gray-900 dark:text-stone-100">
+              Made for trips, not feeds
+            </h2>
+            <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {FEATURES.map((f) => (
-                <li key={f} className="flex items-start gap-2.5 text-sm text-gray-200">
-                  <span className="text-green-400">✓</span> {f}
-                </li>
+                <div
+                  key={f.title}
+                  className="rounded-2xl border border-gray-200 bg-white p-5 dark:border-stone-800 dark:bg-stone-900"
+                >
+                  <p className="flex items-center gap-2 font-semibold text-gray-900 dark:text-stone-100">
+                    <span
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-teal-100 text-xs font-bold text-teal-700 dark:bg-teal-950 dark:text-teal-300"
+                      aria-hidden
+                    >
+                      ✓
+                    </span>
+                    {f.title}
+                  </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-gray-600 dark:text-stone-400">
+                    {f.text}
+                  </p>
+                </div>
               ))}
-            </ul>
-            <Link to="/trips/create" className="mt-6 inline-block">
-              <Button size="lg">Start your trip gallery</Button>
-            </Link>
+            </div>
+            <div className="mt-8 text-center">
+              <Link to="/trips/create">
+                <Button size="lg">Start your trip gallery</Button>
+              </Link>
+            </div>
           </div>
         </PageContainer>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200">
+      <footer className="border-t border-gray-200 dark:border-stone-800">
         <PageContainer className="py-6">
-          <p className="text-center text-xs text-gray-400">
-            TripVault — temporary shared galleries for trips & events.
+          <p className="text-center text-xs text-gray-400 dark:text-stone-500">
+            TripVault — temporary shared galleries for trips &amp; events.
           </p>
         </PageContainer>
       </footer>

@@ -54,7 +54,8 @@ export interface TripDetailResponse {
   videoCount: number;
   myMember: MemberPublic;
   isOwner: boolean;
-  expiresInDays: number;
+  /** Whole hours (rounded up) from now until `trip.expires_at`; may be 0. */
+  expiresInHours: number;
 }
 
 export type JoinTripResponse =

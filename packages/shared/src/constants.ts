@@ -16,10 +16,14 @@ export const INVITE_CODE_LENGTH = 6;
 
 /** Gallery lifetime options (days) for the free tier. */
 export const FREE_AVAILABILITY_OPTIONS = [1, 3, 7, 14] as const;
+/** Short gallery lifetime options (hours) for the free tier. */
+export const FREE_AVAILABILITY_HOURS = [1, 3, 6, 8, 12, 16] as const;
 /** Gallery lifetime options (days) reserved for the premium tier. */
 export const PREMIUM_AVAILABILITY_OPTIONS = [30, 60] as const;
 /** Maximum gallery lifetime (days) allowed on the free tier. */
 export const MAX_GALLERY_DAYS_FREE = 14;
+/** Maximum gallery lifetime (hours) allowed on the free tier. */
+export const MAX_GALLERY_HOURS_FREE = MAX_GALLERY_DAYS_FREE * 24;
 
 /** Days after expiry before the trip is soft-deleted. */
 export const GRACE_PERIOD_DAYS = 7;

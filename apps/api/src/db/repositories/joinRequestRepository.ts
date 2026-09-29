@@ -50,13 +50,15 @@ export const joinRequestRepository = {
     return one(supabase.from('join_requests').select('*').eq('id', id).maybeSingle());
   },
 
-  async listByTrip(tripId: string): Promise<JoinRequest[]> {
+  /** Only pending requests — handled ones disappear from the owner's queue. */
+  async listPendingByTrip(tripId: string): Promise<JoinRequest[]> {
     const { data, error } = await supabase
       .from('join_requests')
       .select('*')
       .eq('trip_id', tripId)
+      .eq('status', 'pending')
       .order('created_at', { ascending: false });
-    return unwrap<JoinRequestRow[]>(data ?? [], error, 'joinRequest.list').map(mapJoinRequest);
+    return unwrap<JoinRequestRow[]>(data ?? [], error, 'joinRequest.listPending').map(mapJoinRequest);
   },
 
   findPendingByTripAndSession(tripId: string, sessionId: string): Promise<JoinRequest | null> {

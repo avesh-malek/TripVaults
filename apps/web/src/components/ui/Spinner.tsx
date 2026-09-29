@@ -9,7 +9,7 @@ export function Spinner({ size = 'md', className = '' }: { size?: keyof typeof s
     <span
       role="status"
       aria-label="Loading"
-      className={`inline-block animate-spin rounded-full border-current border-t-transparent text-indigo-600 ${sizes[size]} ${className}`}
+      className={`inline-block animate-spin rounded-full border-current border-t-transparent text-teal-600 ${sizes[size]} ${className}`}
     />
   );
 }

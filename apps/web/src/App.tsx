@@ -41,7 +41,7 @@ export function App() {
     <QueryClientProvider client={queryClient}>
       <ToastProvider>
         <BrowserRouter>
-          <div className="min-h-screen bg-gray-50 text-gray-900 antialiased">
+          <div className="min-h-screen bg-gray-50 text-gray-900 antialiased dark:bg-stone-950 dark:text-stone-100">
             <Header />
             <Routes>
               <Route path="/" element={<Landing />} />

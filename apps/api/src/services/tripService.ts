@@ -16,7 +16,7 @@ import { memberRepository, toPublic } from '../db/repositories/memberRepository.
 import { mediaRepository } from '../db/repositories/mediaRepository.js';
 import { joinRequestRepository } from '../db/repositories/joinRequestRepository.js';
 import { ensureUniqueInviteCode } from '../utils/inviteCode.js';
-import { addDays, daysUntil, MS_PER_DAY } from '../utils/time.js';
+import { addHours, hoursUntil, MS_PER_DAY } from '../utils/time.js';
 import { AppError } from '../utils/appError.js';
 import { storage } from '../storage/index.js';
 
@@ -39,7 +39,7 @@ async function purgeTripData(trip: Trip): Promise<void> {
 export const tripService = {
   async createTrip(input: CreateTripInput, sessionId: string): Promise<CreateTripResponse> {
     const inviteCode = await ensureUniqueInviteCode();
-    const expiresAt = addDays(new Date(), input.availabilityDays);
+    const expiresAt = addHours(new Date(), input.availabilityHours);
 
     const trip = await tripRepository.create({
       id: randomUUID(),
@@ -83,7 +83,7 @@ export const tripService = {
       videoCount,
       myMember: toPublic(member),
       isOwner: member.role === 'owner',
-      expiresInDays: Math.max(0, daysUntil(trip.expires_at)),
+      expiresInHours: Math.max(0, hoursUntil(trip.expires_at)),
     };
   },
 

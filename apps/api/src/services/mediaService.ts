@@ -65,11 +65,27 @@ function expiresAt(ttlSeconds: number): string {
   return new Date(Date.now() + ttlSeconds * 1000).toISOString();
 }
 
+/** Delete every stored object for a media row (original/compressed/thumbnail). */
+async function deleteMediaObjects(media: Media): Promise<void> {
+  const keys = [media.storage_key, media.compressed_storage_key, media.thumbnail_key];
+  await Promise.all(
+    keys.filter((k): k is string => !!k).map(async (key) => {
+      try {
+        await storage.deleteObject(key);
+      } catch (err) {
+        // Missing objects are fine; log anything else and continue.
+        logger.warn(`Failed to delete storage object ${key}: ${err instanceof Error ? err.message : String(err)}`);
+      }
+    }),
+  );
+}
+
 export const mediaService = {
   async listMedia(tripId: string, member: TripMember, query: MediaQueryInput): Promise<MediaListResponse> {
     const rows = await mediaRepository.listReady(tripId, {
       filter: query.filter,
       memberId: member.id,
+      uploaderId: query.uploaderId,
       limit: query.limit,
       cursor: query.cursor,
     });
@@ -167,22 +183,44 @@ export const mediaService = {
   },
 
   async deleteMedia(media: Media, member: TripMember): Promise<{ deleted: true }> {
-    if (media.uploaded_by !== member.id) {
-      throw new AppError(403, 'NOT_UPLOADER', 'Only the uploader can delete this media.');
+    // Owners can delete any media in their trip; members can delete only their own.
+    if (media.uploaded_by !== member.id && member.role !== 'owner') {
+      throw new AppError(403, 'NOT_PERMITTED', 'Only the uploader or the trip owner can delete this media.');
     }
-    const keys = [media.storage_key, media.compressed_storage_key, media.thumbnail_key];
-    await Promise.all(
-      keys.filter((k): k is string => !!k).map(async (key) => {
-        try {
-          await storage.deleteObject(key);
-        } catch (err) {
-          // Missing objects are fine; log anything else and continue.
-          logger.warn(`Failed to delete storage object ${key}: ${err instanceof Error ? err.message : String(err)}`);
-        }
-      }),
-    );
+    await deleteMediaObjects(media);
     await mediaRepository.deleteById(media.id);
     return { deleted: true };
+  },
+
+  /**
+   * Delete several media items at once. Each item is permission-checked
+   * individually (owner: any item; member: own uploads only) and skipped
+   * when not permitted, so one bad id can't fail the whole batch.
+   */
+  async bulkDelete(
+    tripId: string,
+    member: TripMember,
+    mediaIds: string[],
+  ): Promise<{ deleted: number; skipped: number }> {
+    const items = await mediaRepository.findReadyByIds(tripId, mediaIds);
+    const byId = new Map(items.map((m) => [m.id, m]));
+    let deleted = 0;
+    let skipped = 0;
+    for (const id of mediaIds) {
+      const media = byId.get(id);
+      if (!media) {
+        skipped += 1;
+        continue;
+      }
+      if (media.uploaded_by !== member.id && member.role !== 'owner') {
+        skipped += 1;
+        continue;
+      }
+      await deleteMediaObjects(media);
+      await mediaRepository.deleteById(media.id);
+      deleted += 1;
+    }
+    return { deleted, skipped };
   },
 
   async getMediaUrls(media: Media): Promise<MediaUrlsResponse> {

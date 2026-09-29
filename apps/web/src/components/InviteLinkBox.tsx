@@ -31,11 +31,11 @@ export function InviteLinkBox({ inviteCode, compact = false }: InviteLinkBoxProp
   };
 
   return (
-    <div className={compact ? '' : 'rounded-2xl border border-gray-200 bg-white p-4'}>
+    <div className={compact ? '' : 'rounded-2xl border border-gray-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900'}>
       {!compact && (
         <>
-          <p className="text-sm font-medium text-gray-900">Invite link</p>
-          <p className="mt-0.5 text-xs text-gray-500">
+          <p className="text-sm font-medium text-gray-900 dark:text-stone-100">Invite link</p>
+          <p className="mt-0.5 text-xs text-gray-500 dark:text-stone-400">
             Share this link with your travel buddies so they can join the gallery.
           </p>
         </>
@@ -46,7 +46,7 @@ export function InviteLinkBox({ inviteCode, compact = false }: InviteLinkBoxProp
           value={link}
           onFocus={(e) => e.target.select()}
           aria-label="Invite link"
-          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="min-w-0 flex-1 rounded-lg border border-gray-300 bg-gray-50 px-3 py-2 font-mono text-xs text-gray-700 focus:outline-none focus:ring-2 focus:ring-teal-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-200"
         />
         <Button variant="secondary" size="sm" onClick={() => void copy()} className="shrink-0">
           Copy

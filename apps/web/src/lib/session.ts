@@ -32,9 +32,27 @@ export function getSessionId(tripId: string): string {
   return fresh;
 }
 
+/** Read the stored session id for a trip without creating one (null when absent). */
+export function peekSessionId(tripId: string): string | null {
+  return readStorage(sessionKey(tripId));
+}
+
 /** Persist a known session id for a trip (used right after create/join). */
 export function setSessionId(tripId: string, sessionId: string): void {
   writeStorage(sessionKey(tripId), sessionId);
+}
+
+/**
+ * Join-flow session id, scoped to an invite code. Used before the trip id is
+ * known; once known, prefer the trip-scoped session (see peekSessionId).
+ */
+export function getJoinSessionId(inviteCode: string): string {
+  const key = `tripvault:join-session:${inviteCode}`;
+  const existing = readStorage(key);
+  if (existing) return existing;
+  const fresh = crypto.randomUUID();
+  writeStorage(key, fresh);
+  return fresh;
 }
 
 export interface KnownTrip {

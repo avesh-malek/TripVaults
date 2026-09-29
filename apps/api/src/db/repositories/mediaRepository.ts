@@ -69,9 +69,19 @@ export function mapMedia(row: MediaRow): Media {
 export interface MediaListOptions {
   filter: GalleryFilter;
   memberId: string;
+  /** Restrict to media uploaded by this member (member filter). */
+  uploaderId?: string;
   limit: number;
   cursor?: string;
 }
+
+/**
+ * Statuses visible in the gallery. `processing` media (e.g. videos whose
+ * background work hasn't finished) show up immediately with a
+ * "Processing…" state instead of being hidden; `uploading` rows may not have
+ * their bytes stored yet and stay hidden.
+ */
+const VISIBLE_STATUSES: ProcessingStatus[] = ['ready', 'processing'];
 
 export const mediaRepository = {
   async create(input: MediaInsert): Promise<Media> {
@@ -85,14 +95,14 @@ export const mediaRepository = {
     return row ? mapMedia(row) : null;
   },
 
-  /** Ready media for the given ids, restricted to one trip. */
+  /** Visible media for the given ids, restricted to one trip. */
   async findReadyByIds(tripId: string, ids: string[]): Promise<Media[]> {
     if (ids.length === 0) return [];
     const { data, error } = await supabase
       .from('media')
       .select('*')
       .eq('trip_id', tripId)
-      .eq('processing_status', 'ready')
+      .in('processing_status', VISIBLE_STATUSES)
       .in('id', ids);
     return unwrap<MediaRow[]>(data ?? [], error, 'media.findReadyByIds').map(mapMedia);
   },
@@ -124,11 +134,13 @@ export const mediaRepository = {
       .from('media')
       .select('*')
       .eq('trip_id', tripId)
-      .eq('processing_status', 'ready');
+      .in('processing_status', VISIBLE_STATUSES);
 
     if (opts.filter === 'photos') query = query.eq('media_kind', 'image');
     else if (opts.filter === 'videos') query = query.eq('media_kind', 'video');
     else if (opts.filter === 'mine') query = query.eq('uploaded_by', opts.memberId);
+
+    if (opts.uploaderId) query = query.eq('uploaded_by', opts.uploaderId);
 
     if (opts.cursor) {
       const cursorMedia = await mediaRepository.findById(opts.cursor);
@@ -154,7 +166,7 @@ export const mediaRepository = {
       .from('media')
       .select('id', { count: 'exact', head: true })
       .eq('trip_id', tripId)
-      .eq('processing_status', 'ready')
+      .in('processing_status', VISIBLE_STATUSES)
       .eq('media_kind', kind);
     if (error) throw unwrap<never>(null, error, 'media.count');
     return count ?? 0;

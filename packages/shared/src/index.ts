@@ -28,6 +28,7 @@ export {
   initiateUploadSchema,
   extendTripSchema,
   bulkDownloadSchema,
+  bulkDeleteSchema,
   mediaQuerySchema,
 } from './schemas.js';
 export type {
@@ -37,6 +38,7 @@ export type {
   InitiateUploadInput,
   ExtendTripInput,
   BulkDownloadInput,
+  BulkDeleteInput,
   MediaQueryInput,
 } from './schemas.js';
 
@@ -44,8 +46,10 @@ export {
   INVITE_CODE_ALPHABET,
   INVITE_CODE_LENGTH,
   FREE_AVAILABILITY_OPTIONS,
+  FREE_AVAILABILITY_HOURS,
   PREMIUM_AVAILABILITY_OPTIONS,
   MAX_GALLERY_DAYS_FREE,
+  MAX_GALLERY_HOURS_FREE,
   GRACE_PERIOD_DAYS,
   GRACE_WARNING_DAYS,
   EXPIRING_SOON_THRESHOLD_HOURS,

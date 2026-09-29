@@ -89,22 +89,22 @@ export function MembersPanel({ tripId, sessionId, isOwner, myMemberId, onLeft }:
       {/* Join requests (owner only) */}
       {isOwner && (
         <section>
-          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+          <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-stone-500">
             Join requests {requests.length > 0 && `(${requests.length})`}
           </h3>
           {requestsQuery.isLoading ? (
             <div className="flex justify-center py-6"><Spinner /></div>
           ) : requests.length === 0 ? (
-            <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500">
+            <p className="rounded-xl bg-gray-50 px-4 py-3 text-sm text-gray-500 dark:bg-stone-800/60 dark:text-stone-400">
               No pending requests. New requests will show up here for your approval.
             </p>
           ) : (
-            <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+            <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
               {requests.map((r) => (
                 <li key={r.id} className="flex items-center justify-between gap-3 px-4 py-3">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">{r.name}</p>
-                    <p className="text-xs text-gray-500">Requested {formatDate(r.created_at)}</p>
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-stone-100">{r.name}</p>
+                    <p className="text-xs text-gray-500 dark:text-stone-500">Requested {formatDate(r.created_at)}</p>
                   </div>
                   <div className="flex shrink-0 gap-2">
                     <Button
@@ -132,7 +132,7 @@ export function MembersPanel({ tripId, sessionId, isOwner, myMemberId, onLeft }:
 
       {/* Members */}
       <section>
-        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500">
+        <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-stone-500">
           Members ({members.length})
         </h3>
         {membersQuery.isLoading ? (
@@ -140,32 +140,33 @@ export function MembersPanel({ tripId, sessionId, isOwner, myMemberId, onLeft }:
         ) : membersQuery.isError ? (
           <EmptyState title="Couldn't load members" description="Please try again in a moment." />
         ) : (
-          <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
+          <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white dark:divide-stone-800 dark:border-stone-800 dark:bg-stone-900">
             {members.map((m) => (
               <li key={m.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-semibold text-indigo-700">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal-100 text-sm font-semibold text-teal-700 dark:bg-teal-950 dark:text-teal-300">
                     {m.name.charAt(0).toUpperCase()}
                   </span>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-gray-900">
+                    <p className="truncate text-sm font-medium text-gray-900 dark:text-stone-100">
                       {m.name}
-                      {m.id === myMemberId && <span className="ml-1 font-normal text-gray-400">(you)</span>}
+                      {m.id === myMemberId && (
+                        <span className="ml-1 font-normal text-gray-400 dark:text-stone-500">(you)</span>
+                      )}
                     </p>
-                    <p className="text-xs text-gray-500">Joined {formatDate(m.joined_at)}</p>
+                    <p className="text-xs text-gray-500 dark:text-stone-500">Joined {formatDate(m.joined_at)}</p>
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  {m.role === 'owner' && <Badge color="indigo">Owner</Badge>}
+                  {m.role === 'owner' && <Badge color="teal">Owner</Badge>}
                   {isOwner && m.role !== 'owner' && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="!text-red-600 hover:!bg-red-50"
+                    <button
+                      type="button"
                       onClick={() => setRemoveTarget({ id: m.id, name: m.name })}
+                      className="rounded-lg px-3 py-1.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 dark:text-red-400 dark:hover:bg-red-950"
                     >
                       Remove
-                    </Button>
+                    </button>
                   )}
                 </div>
               </li>
@@ -176,12 +177,12 @@ export function MembersPanel({ tripId, sessionId, isOwner, myMemberId, onLeft }:
 
       {/* Leave */}
       {!isOwner && (
-        <section className="rounded-xl border border-gray-200 bg-white p-4">
+        <section className="rounded-xl border border-gray-200 bg-white p-4 dark:border-stone-800 dark:bg-stone-900">
           <Button variant="secondary" onClick={() => setConfirmLeave(true)}>
             Leave trip
           </Button>
-          <p className="mt-2 text-xs text-gray-500">
-            You'll lose access to this gallery. The trip owner can re-invite you later.
+          <p className="mt-2 text-xs text-gray-500 dark:text-stone-400">
+            You&apos;ll lose access to this gallery. The trip owner can re-invite you later.
           </p>
         </section>
       )}

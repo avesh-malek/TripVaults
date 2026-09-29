@@ -10,7 +10,7 @@ import { z } from 'zod';
 export const createTripSchema = z.object({
   name: z.string().trim().min(1).max(100),
   description: z.string().trim().max(500).optional(),
-  availabilityDays: z.number().int().min(1).max(14),
+  availabilityHours: z.number().int().min(1).max(336),
   accessType: z.enum(['open', 'approval']),
   ownerName: z.string().trim().min(1).max(50),
 });
@@ -56,8 +56,16 @@ export const bulkDownloadSchema = z.object({
 
 export type BulkDownloadInput = z.infer<typeof bulkDownloadSchema>;
 
+export const bulkDeleteSchema = z.object({
+  mediaIds: z.array(z.string().uuid()).min(1).max(100),
+});
+
+export type BulkDeleteInput = z.infer<typeof bulkDeleteSchema>;
+
 export const mediaQuerySchema = z.object({
   filter: z.enum(['all', 'photos', 'videos', 'mine']).default('all'),
+  /** Filter gallery to media uploaded by a specific member. */
+  uploaderId: z.string().uuid().optional(),
   limit: z.coerce.number().int().min(1).max(100).default(60),
   cursor: z.string().uuid().optional(),
 });

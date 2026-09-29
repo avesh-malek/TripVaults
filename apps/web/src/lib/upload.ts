@@ -86,15 +86,24 @@ function canvasToJpegBlob(canvas: HTMLCanvasElement, quality: number): Promise<B
   });
 }
 
-/**
- * Downscale an image to fit within `maxDim` and re-encode as JPEG.
- * Used for "Compressed" uploads.
- */
-export async function compressImage(
-  file: Blob,
-  maxDim = 1920,
-  quality = 0.82,
-): Promise<{ blob: Blob; width: number; height: number }> {
+export interface CompressedImage {
+  blob: Blob;
+  width: number;
+  height: number;
+  /** MIME type of `blob` — 'image/jpeg' when re-encoded, else the source type. */
+  mimeType: string;
+}
+
+/** Load an image for canvas drawing, honoring EXIF orientation when possible. */
+async function loadDrawable(file: Blob): Promise<{ source: CanvasImageSource; width: number; height: number; close: () => void }> {
+  if (typeof createImageBitmap === 'function') {
+    try {
+      const bitmap = await createImageBitmap(file, { imageOrientation: 'from-image' });
+      return { source: bitmap, width: bitmap.width, height: bitmap.height, close: () => bitmap.close() };
+    } catch {
+      /* fall through to the <img> path */
+    }
+  }
   const dims = await getImageDimensions(file);
   const url = URL.createObjectURL(file);
   try {
@@ -104,11 +113,60 @@ export async function compressImage(
       el.onerror = () => reject(new Error('Could not read image'));
       el.src = url;
     });
-    const { canvas, width, height } = drawToCanvas(img, dims.width, dims.height, maxDim);
-    const blob = await canvasToJpegBlob(canvas, quality);
-    return { blob, width, height };
-  } finally {
+    return { source: img, width: dims.width, height: dims.height, close: () => URL.revokeObjectURL(url) };
+  } catch (e) {
     URL.revokeObjectURL(url);
+    throw e;
+  }
+}
+
+/**
+ * Build the upload payload for "Compressed" mode.
+ *
+ * - Downscales so the longest side fits within `maxDim` (aspect preserved).
+ * - Re-encodes to JPEG at `quality`.
+ * - Skips re-encoding entirely when it wouldn't help: images already within
+ *   `maxDim` that are already JPEG are returned untouched, and if the JPEG
+ *   re-encode isn't meaningfully smaller than the source the original bytes
+ *   are kept (avoids making small PNGs/WebPs worse).
+ * - Returns the actual blob + dimensions + MIME so the upload reservation
+ *   metadata always matches the bytes being sent.
+ */
+export async function compressImage(
+  file: Blob,
+  fileType: string,
+  opts?: { maxDim?: number; quality?: number },
+): Promise<CompressedImage> {
+  const { maxDim = 2048, quality = 0.85 } = opts ?? {};
+  const drawable = await loadDrawable(file);
+  try {
+    const { width: naturalWidth, height: naturalHeight } = drawable;
+    const longest = Math.max(naturalWidth, naturalHeight);
+    const needsDownscale = longest > maxDim;
+
+    // Already small and already JPEG — re-encoding only adds artifacts.
+    if (!needsDownscale && fileType === 'image/jpeg') {
+      return { blob: file, width: naturalWidth, height: naturalHeight, mimeType: fileType };
+    }
+
+    const scale = Math.min(1, maxDim / longest);
+    const width = Math.max(1, Math.round(naturalWidth * scale));
+    const height = Math.max(1, Math.round(naturalHeight * scale));
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas is not supported in this browser');
+    ctx.drawImage(drawable.source, 0, 0, width, height);
+    const jpeg = await canvasToJpegBlob(canvas, quality);
+
+    // Don't "compress" into something barely smaller (or larger) than the source.
+    if (jpeg.size >= file.size * 0.95) {
+      return { blob: file, width: naturalWidth, height: naturalHeight, mimeType: fileType };
+    }
+    return { blob: jpeg, width, height, mimeType: 'image/jpeg' };
+  } finally {
+    drawable.close();
   }
 }
 

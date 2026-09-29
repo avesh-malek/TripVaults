@@ -116,7 +116,7 @@ export const memberService = {
   },
 
   async listJoinRequests(tripId: string): Promise<JoinRequestsResponse> {
-    const requests = await joinRequestRepository.listByTrip(tripId);
+    const requests = await joinRequestRepository.listPendingByTrip(tripId);
     return { requests };
   },
 
